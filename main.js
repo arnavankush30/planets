@@ -1,14 +1,13 @@
 import "./style.css";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
+import gsap from "gsap";
 // Set up scene, camera, and renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
-  75,
+  25,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  100
 );
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#canvas"),
@@ -19,37 +18,34 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-const radius = 1;
-const segments = 32;
+const radius = 1.3;
+const segments = 64;
+const orbitRadius = 4.5;
 const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
 const spheres = new THREE.Group();
-// Set up camera position
-camera.position.z = 5;
 
 for (let i = 0; i < 4; i++) {
-  // Create a sphere geometry
   const geometry = new THREE.SphereGeometry(radius, segments, segments);
-
-  // Create a basic material
   const material = new THREE.MeshBasicMaterial({
     color: colors[i],
   });
-
-  // Create a mesh with the geometry and material
   const sphere = new THREE.Mesh(geometry, material);
-  // Add the sphere to the scene
+
+  const angle = (i / 4) * (Math.PI * 2);
+  sphere.position.x = orbitRadius * Math.cos(angle);
+  sphere.position.z = orbitRadius * Math.sin(angle);
+
   spheres.add(sphere);
 }
-
+spheres.rotation.x = 0.1;
+spheres.position.y = -0.8;
 scene.add(spheres);
 
-// Set up OrbitControls
-const controls = new OrbitControls(camera, renderer.domElement);
+camera.position.z = 9;
 
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
   renderer.render(scene, camera);
 }
 
@@ -62,6 +58,3 @@ window.addEventListener("resize", () => {
 
 // Start the animation loop
 animate();
-scene.add(cube);
-
-// Set up OrbitControls
