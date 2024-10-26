@@ -1,5 +1,6 @@
 import "./style.css";
 import * as THREE from "three";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import gsap from "gsap";
 // Set up scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -18,16 +19,47 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
+const loader = new RGBELoader();
+loader.load(
+  "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/moonlit_golf_1k.hdr",
+  function (texture) {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = texture;
+  }
+);
+
 const radius = 1.3;
 const segments = 64;
 const orbitRadius = 4.5;
 const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+const textures = [
+  "./resources/csilla/color.png",
+  "./resources/earth/map.jpg",
+  "./resources/venus/map.jpg",
+  "./resources/volcanic/color.png",
+];
 const spheres = new THREE.Group();
 
+const starTextureLoader = new THREE.TextureLoader().load(
+  "./resources/stars.jpg"
+);
+starTextureLoader.colorSpace = THREE.SRGBColorSpace;
+const starGeometry = new THREE.SphereGeometry(50, 64, 64);
+const starMaterial = new THREE.MeshStandardMaterial({
+  map: starTextureLoader,
+  side: THREE.BackSide,
+});
+const starSphere = new THREE.Mesh(starGeometry, starMaterial);
+scene.add(starSphere);
+
 for (let i = 0; i < 4; i++) {
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load(textures[i]);
+  texture.colorSpace = THREE.SRGBColorSpace;
+
   const geometry = new THREE.SphereGeometry(radius, segments, segments);
-  const material = new THREE.MeshBasicMaterial({
-    color: colors[i],
+  const material = new THREE.MeshStandardMaterial({
+    map: texture,
   });
   const sphere = new THREE.Mesh(geometry, material);
 
